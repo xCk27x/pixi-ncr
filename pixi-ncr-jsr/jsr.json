@@ -1,0 +1,5 @@
+{
+  "name": "@xck27x/pixi-ncr",
+  "version": "0.1.0",
+  "exports": "./index.ts"
+}
