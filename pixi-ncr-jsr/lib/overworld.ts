@@ -2,12 +2,15 @@ import { Application, Assets, Sprite, Texture, Container, Spritesheet, AnimatedS
 import { AnimatedSpritesheet } from './animated_spritesheet';
 
 class Overworld {
+  app!: Application;
   canvas_height: number;
   canvas_width: number;
   lowerMapSprite: Sprite | undefined;
   upperMapSprite: Sprite | undefined;
+  characters: AnimatedSpritesheet[] = [];
   private canvas_id: string;
-  private container: Container | undefined;
+  private mapContainer!: Container;
+  private focusContainer!: Container;
 
 
   constructor(id: string = 'canvas-container', height: number = 198, width: number = 352) {
@@ -19,6 +22,7 @@ class Overworld {
 
   async canvasInit() {
     const app = new Application();
+    this.app = app;
     await app.init({width: this.canvas_width, height: this.canvas_height, backgroundColor: 0xffffff});
     const canvasContainer = document.getElementById(this.canvas_id);
     if (canvasContainer) {
@@ -29,8 +33,9 @@ class Overworld {
       console.error('Canvas container not found');
       return;
     }
-    this.container = new Container();
-    app.stage.addChild(this.container);
+    this.mapContainer = new Container();
+    this.focusContainer = new Container();
+    app.stage.addChild(this.mapContainer, this.focusContainer);
     console.log('Canvas initialized');
   }
 
@@ -39,7 +44,7 @@ class Overworld {
     this.lowerMapSprite = Sprite.from(texture);
     this.lowerMapSprite.anchor.set(0.5);
     this.lowerMapSprite.position.set(this.canvas_width / 2, this.canvas_height / 2);
-    this.container?.addChild(this.lowerMapSprite);
+    this.mapContainer?.addChild(this.lowerMapSprite);
     console.log('Lower map loaded');
     return this.lowerMapSprite;
   }
@@ -49,23 +54,32 @@ class Overworld {
     this.upperMapSprite = Sprite.from(texture);
     this.upperMapSprite.anchor.set(0.5);
     this.upperMapSprite.position.set(this.canvas_width / 2, this.canvas_height / 2);
-    this.container?.addChild(this.upperMapSprite);
+    this.mapContainer.addChild(this.upperMapSprite);
     console.log('Upper map loaded');
     return this.upperMapSprite;
   }
 
-  async loadSprite(sprite: string) {      
+  async loadSprite(sprite: string, focus: boolean = false) {      
     return fetch(sprite)
     .then(response => response.json())
     .then(async jsonObject => {
       const animSprShe = new AnimatedSpritesheet(sprite, jsonObject);
       await animSprShe.loadAnimSpriteSheet(this.canvas_width / 2, this.canvas_height / 2);
       if (animSprShe.anim) {
+        if (focus) {
+          this.focusContainer.addChild(animSprShe.anim);
+        } else {
+          this.mapContainer.addChild(animSprShe.anim);
+        }
         console.log('Sprite loaded');
-        this.container?.addChild(animSprShe.anim);
       }
       return animSprShe;
     })
+  }
+
+  move(key: {x: number, y: number}) {
+    this.mapContainer.x -= key.x;
+    this.mapContainer.y -= key.y;
   }
 }
 

@@ -5,7 +5,9 @@ export class AnimatedSpritesheet {
   private pngUrl: string;
   private jsonObject: any;
   private spriteSheet: Spritesheet | undefined;
-  anim: AnimatedSprite | undefined;
+  private focus: boolean = false;
+  
+  anim!: AnimatedSprite;
 
   constructor(sprite: string, jsonObject: any) {
     this.jsonUrl = sprite;
