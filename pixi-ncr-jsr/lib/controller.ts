@@ -1,5 +1,3 @@
-import types from '@nuxtjs/tailwindcss';
-import type { AnimatedSpritesheet } from './animated_spritesheet';
 import type { Overworld } from './overworld';
 
 type Key = { x: number, y: number };
@@ -15,29 +13,28 @@ export const keyMap = {
   KeyD: 'right',
   ArrowRight: 'right',
 };
-
-enum Direction {
-  UP = 'up',
-  LEFT = 'left',
-  DOWN = 'down',
-  RIGHT = 'right',
-  None = 'none',
-}
-
+/**
+ * Controller class to handle user input
+ * ```typescript
+ * import { Controller } from 'pixi-ncr-jsr';
+ * 
+ * const controller = new Controller(world);
+ * ```
+ * @param world - The Overworld instance to control
+ */  
 export class Controller {
   world: Overworld;
   keys: Keys = {
-    up: { x: 0, y: -2},
-    left: { x: -2, y: 0},
-    down: { x: 0, y: 2},
-    right: { x: 2, y: 0},
+    up: { x: 0, y: -1},
+    left: { x: -1, y: 0},
+    down: { x: 0, y: 1},
+    right: { x: 1, y: 0},
   }
-  private direction: string = 'none'
+  private direction: string = 'down';
   private nextDirection: string[] = [];
   private movingProgressRemaining: number = 0;
-  private movingProgress: number = 0;
   
-  constructor(world: Overworld, ...focusList: AnimatedSpritesheet[]) {
+  constructor(world: Overworld) {
     this.world = world;
     window.addEventListener('keydown', (event) => this.keydownHandler(event), { passive: false });
     window.addEventListener('keyup', (event) => this.keyupHandler(event));
@@ -46,13 +43,26 @@ export class Controller {
 
   tickerHandler() {
     if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
-      this.movingProgressRemaining = 8;
-      this.direction = this.nextDirection[0];
+      this.movingProgressRemaining = 16;
+      // spriteSheet direction update
+      if (this.nextDirection[0] !== this.direction) {
+        this.direction = this.nextDirection[0];
+        this.world.focusCharacters.forEach(charcter => {
+          charcter.changeAnime(this.direction);
+          charcter.anim.play();
+        });
+      }
     }
-    if (this.direction !== 'none' && this.movingProgressRemaining > 0) { 
+    
+    if (this.movingProgressRemaining > 0) { 
       const dire = this.keys[this.direction];
       this.world.move(dire);
       this.movingProgressRemaining -= 1;
+    } else {
+      this.world.focusCharacters.forEach(charcter => {
+        this.direction = 'none'
+        charcter.anim.gotoAndStop(0);
+      });
     }
   }
 
@@ -60,19 +70,9 @@ export class Controller {
     console.log('keydown', event.code);
     if (event.repeat) return;
     const key = keyMap[event.code as keyof typeof keyMap];
-    if (key &&  this.nextDirection.indexOf(key) === -1)
+    if (key && this.nextDirection.indexOf(key) === -1) {
       this.nextDirection.unshift(key);
-
-    // if (key) {
-    //   // this.world.app.ticker.add(() => this.world.move(key));
-    //   const dire = this.keys[key];
-    //   while (this.movingProgressRemaining > 0) {
-    //     this.world.move(dire);
-    //     this.movingProgressRemaining -= 1;
-    //   }
-    //   this.movingProgressRemaining = 8;
-    //   // this.world.move(this.keys[key]);
-    // }
+    }
   }
 
   keyupHandler(event: KeyboardEvent) {

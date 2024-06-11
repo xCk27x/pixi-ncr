@@ -25,16 +25,14 @@ export class AnimatedSpritesheet {
     
     await this.spriteSheet.parse();
     
-    this.anim = new AnimatedSprite(this.spriteSheet.animations['hero-down']);
+    this.anim = new AnimatedSprite(this.spriteSheet.animations['down']);
     this.anim.animationSpeed = 0.1666;
     this.anim.anchor.set(0.5);
     this.anim.position.set(pivotX, pivotY);
-    this.anim.play();
   }
 
   changeAnime(animeName: string) {
     const newAnimeList = this.spriteSheet?.animations[animeName];
-    console.log(newAnimeList, this.anim);
     if (newAnimeList && this.anim) {
       this.anim.textures = newAnimeList;
       this.anim.play();

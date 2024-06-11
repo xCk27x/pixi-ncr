@@ -129,10 +129,10 @@
 	"sourceSize": {"w":32,"h":32}
 }},
 "animations": {
-	"hero-down": ["hero-down-1.png","hero-down-2.png","hero-down-3.png","hero-down-4.png"],
-	"hero-left": ["hero-left-1.png","hero-left-2.png","hero-left-3.png","hero-left-4.png"],
-	"hero-right": ["hero-right-1.png","hero-right-2.png","hero-right-3.png","hero-right-4.png"],
-	"hero-up": ["hero-up-1.png","hero-up-2.png","hero-up-3.png","hero-up-4.png"]
+	"down": ["hero-down-1.png","hero-down-2.png","hero-down-3.png","hero-down-4.png"],
+	"left": ["hero-left-1.png","hero-left-2.png","hero-left-3.png","hero-left-4.png"],
+	"right": ["hero-right-1.png","hero-right-2.png","hero-right-3.png","hero-right-4.png"],
+	"up": ["hero-up-1.png","hero-up-2.png","hero-up-3.png","hero-up-4.png"]
 },
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",

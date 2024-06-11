@@ -9,10 +9,11 @@ import { Overworld, Controller } from "~/pixi-ncr-jsr/index";
 
 onMounted(async () => {
   const overworld = new Overworld();
-  const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png');
+  const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, 0);
+  const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, 0);
   const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true);
-  const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png');
-  const controller = new Controller(overworld, hero);
+  const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
+  const controller = new Controller(overworld);
 });
 </script>
 
