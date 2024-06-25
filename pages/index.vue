@@ -11,9 +11,11 @@ onMounted(async () => {
   const overworld = new Overworld();
   const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, 0);
   const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, 0);
-  const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true);
+  const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 10, 10);
   const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
+  const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
   const controller = new Controller(overworld);
+  overworld.addWall([0, 0], [0, 10]);
 });
 </script>
 

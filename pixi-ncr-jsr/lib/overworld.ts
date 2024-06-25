@@ -1,7 +1,7 @@
-import { Application, Assets, Sprite, Container } from 'pixi.js';
+import { Application, Assets, Sprite, Container, AnimatedSprite } from 'pixi.js';
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
-class Overworld {
+export class Overworld {
   app!: Application;
   gridSize: number = 16;
   canvas_height: number;
@@ -9,13 +9,13 @@ class Overworld {
   lowerMapSprite: Sprite | undefined;
   upperMapSprite: Sprite | undefined;
   characters: AnimatedSpritesheet[] = [];
-  focusCharacters: AnimatedSpritesheet[] = [];
-  walls = new Set<number>();
+  focusCharacter: AnimatedSpritesheet | undefined;
+  focusCharacterX: number = 0;
+  focusCharacterY: number = 0;
+  walls: Set<number> = new Set<number>();
   private canvas_id: string;
   private mapContainer!: Container;
   private characterContainer!: Container;
-  private focusContainer!: Container;
-
 
   constructor(id: string = 'canvas-container', height: number = 192, width: number = 352) {
     this.canvas_id = id;
@@ -39,12 +39,11 @@ class Overworld {
       return;
     }
     this.characterContainer = new Container();
-    this.focusContainer = new Container();
-    app.stage.addChild(this.mapContainer, this.characterContainer, this.focusContainer);
+    app.stage.addChild(this.mapContainer, this.characterContainer);
     console.log('Canvas initialized');
   }
 
-  async loadLowerMap(lowerMap: string, pivotX: number = 0, pivotY: number = 0) {
+  async loadLowerMap(lowerMap: string, pivotX: number = 0, pivotY: number = 0): Promise<Sprite> {
     const texture = await Assets.load(lowerMap);
     this.lowerMapSprite = Sprite.from(texture);
     this.lowerMapSprite.anchor.set(0);
@@ -54,7 +53,7 @@ class Overworld {
     return this.lowerMapSprite;
   }
   
-  async loadUpperMap(upperMap: string, pivotX: number = 0, pivotY: number = 0) {
+  async loadUpperMap(upperMap: string, pivotX: number = 0, pivotY: number = 0): Promise<Sprite> {
     const texture = await Assets.load(upperMap);
     this.upperMapSprite = Sprite.from(texture);
     this.upperMapSprite.anchor.set(0);
@@ -87,8 +86,11 @@ class Overworld {
       await animSprShe.loadAnimSpriteSheet(this.gridSize / 2 + pivotX * 16, pivotY * 16);
       if (animSprShe.anim) {
         if (focus) {
-          this.focusContainer.addChild(animSprShe.anim);
-          this.focusCharacters.push(animSprShe);
+          if (!this.focusCharacter) 
+            this.app.stage.addChild(animSprShe.anim);
+          this.focusCharacterX = pivotX;
+          this.focusCharacterY = pivotY;
+          this.focusCharacter = animSprShe;
         } else {
           this.characterContainer.addChild(animSprShe.anim);
         }
@@ -98,11 +100,13 @@ class Overworld {
     })
   }
 
-  move(key: {x: number, y: number}) {
+  move(key: {x: number, y: number}): void {
     this.mapContainer.x -= key.x;
     this.mapContainer.y -= key.y;
     this.characterContainer.x -= key.x;
-    this.characterContainer.y -= key.y; 
+    this.characterContainer.y -= key.y;
+    this.focusCharacterX += key.x;
+    this.focusCharacterY += key.y;
   }
 
   /**
@@ -126,12 +130,22 @@ class Overworld {
     } else if (Array.isArray(XY1) && Array.isArray(XY2)) {
       for (let x = XY1[0]; x <= XY2[0]; x++) {
         for (let y = XY1[1]; y <= XY2[1]; y++) {
+          console.log(wallFormat(x, y));
           this.walls.add(wallFormat(x, y));
         }
       }
     }
   }
+
+  /**
+   * Get the next step of the character
+   * 
+   * @param key - The key of the direction
+   * @returns The next step of the character
+   */
+  getCharacterNextStep(key: {x: number, y: number}): number {
+    const nextStep = wallFormat(this.focusCharacterX / 16 + key.x, this.focusCharacterY / 16 + key.y);
+    console.log(nextStep);
+    return nextStep;
+  }
 }
-
-export { Overworld };
-

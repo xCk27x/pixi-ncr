@@ -43,15 +43,20 @@ export class Controller {
 
   tickerHandler() {
     if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
-      this.movingProgressRemaining = 16;
       // spriteSheet direction update
       if (this.nextDirection[0] !== this.direction) {
         this.direction = this.nextDirection[0];
-        this.world.focusCharacters.forEach(charcter => {
-          charcter.changeAnime(this.direction);
-          charcter.anim.play();
-        });
+        console.log(this.direction);
+        this.world.focusCharacter!.changeAnime(this.direction);
+        this.world.focusCharacter!.anim.play();
+        // if next step is wall
+        const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
+        if (this.world.walls.has(nextStep)) {
+          this.nextDirection.shift();
+          return;
+        }
       }
+      this.movingProgressRemaining = 16;
     }
     
     if (this.movingProgressRemaining > 0) { 
@@ -59,10 +64,8 @@ export class Controller {
       this.world.move(dire);
       this.movingProgressRemaining -= 1;
     } else {
-      this.world.focusCharacters.forEach(charcter => {
-        this.direction = 'none'
-        charcter.anim.gotoAndStop(0);
-      });
+      this.direction = 'none';
+      this.world.focusCharacter!.anim.gotoAndStop(0);
     }
   }
 
