@@ -7,9 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "nuxt": "^3.11.2",
-    "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "pixi.js": "^8.1.5"
   },
   "author": "xck27x",
   "license": "ISC"
