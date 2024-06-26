@@ -1,7 +1,7 @@
 <template>
-<div id="screen" class=" h-screen w-screen flex justify-center items-center">
-  <div id="canvas-container" class="w-fit border-2"></div>
-</div>
+  <div id="screen" class=" h-screen w-screen flex justify-center items-center">
+    <div id="canvas-container" class="w-fit border-2"></div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -15,7 +15,9 @@ onMounted(async () => {
   const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
   const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
   const controller = new Controller(overworld);
-  overworld.addWall([0, 0], [0, 10]);
+  overworld.addWall([0, 0], [0, 100]);
+  overworld.addWall([20, -100], [20, -6]);
+  console.log('Walls:', overworld.walls);
 });
 </script>
 
