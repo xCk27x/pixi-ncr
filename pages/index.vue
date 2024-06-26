@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Overworld, Controller } from "~/pixi-ncr-jsr/index";
+import { Overworld, Controller } from "~/pixi-rpg/index";
 
 onMounted(async () => {
   const overworld = new Overworld();
