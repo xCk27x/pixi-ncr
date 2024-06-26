@@ -15,11 +15,11 @@ onMounted(async () => {
   const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
   const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
   const controller = new Controller(overworld);
-  // overworld.addWall([0, 0], [0, 100]);
-  overworld.addWall([1, -7], [1, -2]);
+  overworld.addWall([1, -10], [1, -2]);
   overworld.addWall([-4, -1], [1, -1]);
   overworld.addWall([-10, -1], [-6, -1]);
-  overworld.addWall([-10, -7], [-10, -1]);
+  overworld.addWall([-10, -11], [-10, -1]);
+  overworld.addWall([-10, -11], [1, -11]);
   overworld.addWall([-10, -8], [-5, -8]);
   overworld.addWall([-4, -7], [-4, -7]);
   overworld.addWall([-2, -7], [-2, -7]);
@@ -32,7 +32,7 @@ onMounted(async () => {
 
 <style lang="scss">
 #canvas-container {
-  transform: scale(1.5);
+  transform: scale(2.5);
 
   & .canvas-entity {
     image-rendering: pixelated;
