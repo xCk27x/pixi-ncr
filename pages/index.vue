@@ -4,7 +4,7 @@
       <!-- Original canvas element where Pixi.js will render -->
       <div id="pixi-canvas" class="canvas-entity"></div>
       <!-- Dialog container within the canvas container -->
-      <div id="dialog-container" class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10">
+      <div v-if="showDialog" id="dialog-container" class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10">
         <p id="dialog-text">{{ dialogText }}</p>
       </div>
     </div>
@@ -23,6 +23,14 @@ import eventBus from "~/pixi-rpg/lib/eventBus";
 const dialog = useDialog('');
 const dialogText = computed(() => dialog.getText());
 const showDialog = ref(false);
+
+eventBus.on('trigger-dialog', (text: string) => {
+  dialog.setText(text);
+  showDialog.value = true;
+  setTimeout(() => {
+    showDialog.value = false;
+  }, 2000); // 2 seconds later, hide the dialog
+});
 
 onMounted(async () => {
   const overworld = new Overworld('pixi-canvas');
@@ -47,12 +55,12 @@ onMounted(async () => {
 
   console.log('Walls:', overworld.walls);
 
-  overworld.addTrigger(-5, 6, 'You have reached the starting point!');
+  overworld.addTrigger(-5, 6, '這裡是門口');
 
-  eventBus.on('trigger-dialog', (text: string) => {
-    dialog.setText(text);
-    showDialog.value = true;
-  });
+  // eventBus.on('trigger-dialog', (text: string) => {
+  //   dialog.setText(text);
+  //   showDialog.value = true;
+  // });
 });
 </script>
 
