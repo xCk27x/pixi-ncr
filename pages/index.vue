@@ -6,7 +6,8 @@
       <!-- Dialog container within the canvas container -->
       <div v-if="showDialog" id="dialog-container" class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10">
         <p id="dialog-text">{{ dialogText }}</p>
-        <p class="text-xs text-gray-400 text-right">點擊螢幕繼續</p> <!-- 新增這行 -->
+        <p class="text-left">離開以取消</p>
+        <p class="text-right">點擊螢幕繼續</p>
       </div>
     </div>
   </div>
@@ -70,7 +71,7 @@ onMounted(async () => {
     showDialog.value = true;
   });
 
-  // eventBus.on('leave-trigger-area', handleLeaveTriggerArea);
+  eventBus.on('leave-trigger-area', handleLeaveTriggerArea);
 
 
   window.addEventListener('click', handleScreenClick);
@@ -81,7 +82,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  // eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
+  eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
 
   window.removeEventListener('click', handleScreenClick)
 });
@@ -116,26 +117,34 @@ onUnmounted(() => {
   text-align: left;
   font-family: 'Arial', sans-serif;
   font-size: 10px;
+  font-weight: 800;
   z-index: 10;
   /* Ensure it's above the canvas elements */
 }
 
-.text-xs {
-  font-size: 8px;
-  /* 新增這行，用於小字體 */
-}
 
-.text-gray-400 {
-  color: rgba(156, 163, 175, 1);
-  /* 新增這行，用於灰色文字 */
-}
 
 .text-right {
+  font-size: 8px;
+  color: rgb(227, 225, 225);
   text-align: right;
   bottom: 3px;
-  right: 3px;
+  right: 6px;
+  font-weight: 400;
   position: absolute;
   /* 新增這行，使其绝对定位 */
   /* 新增這行，讓文字靠右 */
+}
+
+.text-left {
+  font-size: 8px;
+  color: rgba(156, 163, 175, 1);
+  text-align: left;
+  bottom: 3px;
+  left: 6px;
+  font-weight: 400;
+  position: absolute;
+  /* 新增這行，使其绝对定位 */
+  /* 新增這行，讓文字靠左 */
 }
 </style>
