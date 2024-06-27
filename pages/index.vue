@@ -1,12 +1,12 @@
 <template>
-  <div id="screen" class="h-screen w-screen flex justify-center items-center">
+  <div id="screen" class="h-screen w-screen flex justify-center items-center" @click="handleScreenClick">
     <div id="canvas-container" class="relative w-fit border-2">
       <!-- Original canvas element where Pixi.js will render -->
       <div id="pixi-canvas" class="canvas-entity"></div>
       <!-- Dialog container within the canvas container -->
       <div v-if="showDialog" id="dialog-container" class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10">
         <p id="dialog-text">{{ dialogText }}</p>
-        <p class="text-xs text-gray-400 text-right">按Enter繼續</p> <!-- 新增這行 -->
+        <p class="text-xs text-gray-400 text-right">點擊螢幕繼續</p> <!-- 新增這行 -->
       </div>
     </div>
   </div>
@@ -25,11 +25,21 @@ const dialog = useDialog('');
 const dialogText = computed(() => dialog.getText());
 const showDialog = ref(false);
 
-function handleKeyDown(event: KeyboardEvent) {
-  if (event.key === 'Enter' && showDialog.value) {
+function handleScreenClick() {
+  if (showDialog.value) {
+    dialog.stopTyping(); // 停止打字效果
     showDialog.value = false;
   }
 }
+
+function handleLeaveTriggerArea() {
+  if (showDialog.value) {
+    // 此處添加離開觸發區域後需要執行的邏輯
+    showDialog.value = false;
+  }
+}
+
+
 onMounted(async () => {
   const overworld = new Overworld('pixi-canvas');
   const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
@@ -60,8 +70,10 @@ onMounted(async () => {
     showDialog.value = true;
   });
 
-  window.addEventListener('keydown', handleKeyDown);
+  // eventBus.on('leave-trigger-area', handleLeaveTriggerArea);
 
+
+  window.addEventListener('click', handleScreenClick);
   // eventBus.on('trigger-dialog', (text: string) => {
   //   dialog.setText(text);
   //   showDialog.value = true;
@@ -69,7 +81,9 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyDown);
+  // eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
+
+  window.removeEventListener('click', handleScreenClick)
 });
 </script>
 
@@ -99,7 +113,7 @@ onUnmounted(() => {
   padding: 10px;
 
   /* Position it at the bottom of the container */
-  text-align: center;
+  text-align: left;
   font-family: 'Arial', sans-serif;
   font-size: 10px;
   z-index: 10;
