@@ -6,6 +6,7 @@
       <!-- Dialog container within the canvas container -->
       <div v-if="showDialog" id="dialog-container" class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10">
         <p id="dialog-text">{{ dialogText }}</p>
+        <p class="text-xs text-gray-400 text-right">按Enter繼續</p> <!-- 新增這行 -->
       </div>
     </div>
   </div>
@@ -24,14 +25,11 @@ const dialog = useDialog('');
 const dialogText = computed(() => dialog.getText());
 const showDialog = ref(false);
 
-eventBus.on('trigger-dialog', (text: string) => {
-  dialog.setText(text);
-  showDialog.value = true;
-  setTimeout(() => {
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Enter' && showDialog.value) {
     showDialog.value = false;
-  }, 2000); // 2 seconds later, hide the dialog
-});
-
+  }
+}
 onMounted(async () => {
   const overworld = new Overworld('pixi-canvas');
   const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
@@ -57,10 +55,21 @@ onMounted(async () => {
 
   overworld.addTrigger(-5, 6, '這裡是門口');
 
+  eventBus.on('trigger-dialog', (text: string) => {
+    dialog.setText(text);
+    showDialog.value = true;
+  });
+
+  window.addEventListener('keydown', handleKeyDown);
+
   // eventBus.on('trigger-dialog', (text: string) => {
   //   dialog.setText(text);
   //   showDialog.value = true;
   // });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
 });
 </script>
 
@@ -78,19 +87,41 @@ onMounted(async () => {
 }
 
 #dialog-container {
-  width: 100%;
+  width: 80%;
   height: 30%;
   border-radius: 8px;
+  left: 10%;
+  right: 10%;
+  bottom: 5%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 10px;
-  bottom: 0;
+
   /* Position it at the bottom of the container */
   text-align: center;
   font-family: 'Arial', sans-serif;
   font-size: 10px;
   z-index: 10;
   /* Ensure it's above the canvas elements */
+}
+
+.text-xs {
+  font-size: 8px;
+  /* 新增這行，用於小字體 */
+}
+
+.text-gray-400 {
+  color: rgba(156, 163, 175, 1);
+  /* 新增這行，用於灰色文字 */
+}
+
+.text-right {
+  text-align: right;
+  bottom: 3px;
+  right: 3px;
+  position: absolute;
+  /* 新增這行，使其绝对定位 */
+  /* 新增這行，讓文字靠右 */
 }
 </style>
