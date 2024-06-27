@@ -15,9 +15,14 @@
 import { onMounted, ref, computed } from 'vue';
 import { Overworld, Controller } from "~/pixi-rpg/index";
 import { useDialog } from "~/pixi-rpg/lib/dialog";
+import eventBus from "~/pixi-rpg/lib/eventBus";
 
-const dialog = useDialog('Welcome to the RPG game!');
+// const dialog = useDialog('Welcome to the RPG game!');
+// const dialogText = computed(() => dialog.getText());
+// 初始化对话框相关状态
+const dialog = useDialog('');
 const dialogText = computed(() => dialog.getText());
+const showDialog = ref(false);
 
 onMounted(async () => {
   const overworld = new Overworld('pixi-canvas');
@@ -42,7 +47,12 @@ onMounted(async () => {
 
   console.log('Walls:', overworld.walls);
 
-  dialog.setText('Let the adventure begin!');
+  overworld.addTrigger(-5, 6, 'You have reached the starting point!');
+
+  eventBus.on('trigger-dialog', (text: string) => {
+    dialog.setText(text);
+    showDialog.value = true;
+  });
 });
 </script>
 
