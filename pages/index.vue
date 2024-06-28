@@ -67,11 +67,11 @@ onMounted(async () => {
   const overworld = new Overworld('pixi-canvas');
   // const overworld = new Overworld();
   const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
-  const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
+
   const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 10, 3);
   const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
   const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
-
+  const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
   const controller = new Controller(overworld);
 
   // overworld.app.stage.addChild(lowerMap);
@@ -105,11 +105,13 @@ onMounted(async () => {
   eventBus.on('leave-trigger-area', handleLeaveTriggerArea);
 
 
+  overworld.sortChildren();
   // window.addEventListener('click', handleScreenClick);
   // eventBus.on('trigger-dialog', (text: string) => {
   //   dialog.setText(text);
   //   showDialog.value = true;
   // });
+
 });
 
 onUnmounted(() => {
