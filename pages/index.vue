@@ -1,13 +1,28 @@
 <template>
-  <div id="screen" class="h-screen w-screen flex justify-center items-center" @click="handleScreenClick">
+  <div id="screen" class="h-screen w-screen flex justify-center items-center">
+    <div class="a"></div>
     <div id="canvas-container" class="relative w-fit border-2">
       <!-- Original canvas element where Pixi.js will render -->
-      <div id="pixi-canvas" class="canvas-entity"></div>
+      <div id="pixi-canvas" class="canvas-entity portrait"></div>
       <!-- Dialog container within the canvas container -->
-      <div v-if="showDialog" id="dialog-container" class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10">
+      <div v-if="showDialog" id="dialog-container" class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10"
+        @click="handleDialogClick">
         <p id="dialog-text">{{ dialogText }}</p>
         <p class="text-left">離開以取消</p>
-        <p class="text-right">點擊螢幕繼續</p>
+        <p class="text-right">點擊對話框繼續</p>
+      </div>
+    </div>
+
+    <div id="controls" class="absolute bottom-4 left-4 flex flex-col space-y-2 md:hidden">
+      <button @mousedown="startMove('up')" @mouseup="stopMove('up')" @touchstart="startMove('up')"
+        @touchend="stopMove('up')" class="control-btn">↑</button>
+      <div class="flex space-x-2">
+        <button @mousedown="startMove('left')" @mouseup="stopMove('left')" @touchstart="startMove('left')"
+          @touchend="stopMove('left')" class="control-btn">←</button>
+        <button @mousedown="startMove('down')" @mouseup="stopMove('down')" @touchstart="startMove('down')"
+          @touchend="stopMove('down')" class="control-btn">↓</button>
+        <button @mousedown="startMove('right')" @mouseup="stopMove('right')" @touchstart="startMove('right')"
+          @touchend="stopMove('right')" class="control-btn">→</button>
       </div>
     </div>
   </div>
@@ -26,7 +41,7 @@ const dialog = useDialog('');
 const dialogText = computed(() => dialog.getText());
 const showDialog = ref(false);
 
-function handleScreenClick() {
+function handleDialogClick() {
   if (showDialog.value) {
     dialog.stopTyping(); // 停止打字效果
     showDialog.value = false;
@@ -39,16 +54,32 @@ function handleLeaveTriggerArea() {
     showDialog.value = false;
   }
 }
+function startMove(direction: string) {
+  eventBus.emit('move-start', direction);
+}
+
+function stopMove(direction: string) {
+  eventBus.emit('move-stop', direction);
+}
 
 
 onMounted(async () => {
   const overworld = new Overworld('pixi-canvas');
+  // const overworld = new Overworld();
   const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
   const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
   const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 10, 3);
   const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
   const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
+
   const controller = new Controller(overworld);
+
+  // overworld.app.stage.addChild(lowerMap);
+  // overworld.app.stage.addChild(hero);
+  // overworld.app.stage.addChild(hero2);
+  // overworld.app.stage.addChild(hero3);
+  // overworld.app.stage.addChild(upperMap);
+  // overworld.app.stage.setChildIndex(upperMap, overworld.app.stage.children.length - 1);
 
   overworld.addWall([1, -3], [1, 5]);
   overworld.addWall([-4, 6], [1, 6]);
@@ -74,7 +105,7 @@ onMounted(async () => {
   eventBus.on('leave-trigger-area', handleLeaveTriggerArea);
 
 
-  window.addEventListener('click', handleScreenClick);
+  // window.addEventListener('click', handleScreenClick);
   // eventBus.on('trigger-dialog', (text: string) => {
   //   dialog.setText(text);
   //   showDialog.value = true;
@@ -84,20 +115,50 @@ onMounted(async () => {
 onUnmounted(() => {
   eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
 
-  window.removeEventListener('click', handleScreenClick)
+  // window.removeEventListener('click', handleScreenClick)
 });
 </script>
 
 <style lang="scss">
 #canvas-container {
-  transform: scale(2.5);
   position: relative;
   /* Ensure that the canvas-container can position children absolutely */
 }
 
+@media (min-width: 1000px) {
+  #canvas-container {
+    transform: scale(2.5);
+  }
+}
+
+@media (max-width: 1000px) {
+  #canvas-container {
+    transform: scale(1.5);
+  }
+
+
+}
+
+@media (max-width: 700px) {
+  #canvas-container {
+    transform: scale(1.2);
+  }
+
+
+}
+
+@media (oritation: portrait) {
+  .portrait {
+    display: none;
+    transform: scale(0.0);
+  }
+
+}
+
+
 #pixi-canvas {
   width: 100%;
-  height: 100%;
+  //height: 100%;
   /* Ensures the Pixi.js canvas takes up the full container */
 }
 
@@ -111,7 +172,7 @@ onUnmounted(() => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 10px;
+  //padding: 10px;
 
   /* Position it at the bottom of the container */
   text-align: left;
@@ -146,5 +207,37 @@ onUnmounted(() => {
   position: absolute;
   /* 新增這行，使其绝对定位 */
   /* 新增這行，讓文字靠左 */
+}
+
+/* 移动按钮样式 */
+#controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 10;
+
+
+}
+
+.control-btn {
+  width: 50px;
+  height: 50px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+.control-btn:active {
+  background-color: #333;
 }
 </style>
