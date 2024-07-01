@@ -75,12 +75,6 @@ onMounted(async () => {
 
     const controller = new Controller(overworld);
 
-    // overworld.app.stage.addChild(lowerMap);
-    // overworld.app.stage.addChild(hero);
-    // overworld.app.stage.addChild(hero2);
-    // overworld.app.stage.addChild(hero3);
-    // overworld.app.stage.addChild(upperMap);
-    // overworld.app.stage.setChildIndex(upperMap, overworld.app.stage.children.length - 1);
 
     // overworld.addWall([1, -3], [1, 5]);
     // overworld.addWall([-4, 6], [1, 6]);
@@ -96,7 +90,7 @@ onMounted(async () => {
 
     console.log('Walls:', overworld.walls);
 
-    overworld.addTrigger(-5, 6, '這裡是門口');
+    overworld.addTrigger(-5, 6, '這裡是校園地圖');
 
     eventBus.on('trigger-dialog', (text: string) => {
         dialog.setText(text);

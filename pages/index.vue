@@ -31,8 +31,10 @@
 <script lang="ts" setup>
 import { onMounted, ref, computed } from 'vue';
 import { Overworld, Controller } from "~/pixi-rpg/index";
+import { useRouter } from 'vue-router';
 import { useDialog } from "~/pixi-rpg/lib/dialog";
 import eventBus from "~/pixi-rpg/lib/eventBus";
+const nextRoute = ref<string | null>(null); // 用于存储下一步的路由
 
 // const dialog = useDialog('Welcome to the RPG game!');
 // const dialogText = computed(() => dialog.getText());
@@ -40,11 +42,17 @@ import eventBus from "~/pixi-rpg/lib/eventBus";
 const dialog = useDialog('');
 const dialogText = computed(() => dialog.getText());
 const showDialog = ref(false);
+const router = useRouter(); // 获取 router 实例
 
 function handleDialogClick() {
   if (showDialog.value) {
     dialog.stopTyping(); // 停止打字效果
-    showDialog.value = false;
+    // showDialog.value = false;
+
+    if (nextRoute.value) {
+      router.push(nextRoute.value);
+    }
+
   }
 }
 
@@ -74,12 +82,7 @@ onMounted(async () => {
   const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
   const controller = new Controller(overworld);
 
-  // overworld.app.stage.addChild(lowerMap);
-  // overworld.app.stage.addChild(hero);
-  // overworld.app.stage.addChild(hero2);
-  // overworld.app.stage.addChild(hero3);
-  // overworld.app.stage.addChild(upperMap);
-  // overworld.app.stage.setChildIndex(upperMap, overworld.app.stage.children.length - 1);
+
 
   overworld.addWall([1, -3], [1, 5]);
   overworld.addWall([-4, 6], [1, 6]);
@@ -95,7 +98,7 @@ onMounted(async () => {
 
   console.log('Walls:', overworld.walls);
 
-  overworld.addTrigger(-5, 6, '這裡前往校園地圖');
+  overworld.addTrigger(-5, 6, '這裡前往校園地圖', '/map');
 
   eventBus.on('trigger-dialog', (text: string) => {
     dialog.setText(text);
@@ -111,6 +114,10 @@ onMounted(async () => {
   //   dialog.setText(text);
   //   showDialog.value = true;
   // });
+
+  eventBus.on('navigate', (route: string) => {
+    nextRoute.value = route;
+  });
 
 });
 
