@@ -95,7 +95,7 @@ onMounted(async () => {
 
   console.log('Walls:', overworld.walls);
 
-  overworld.addTrigger(-5, 6, '這裡是門口');
+  overworld.addTrigger(-5, 6, '這裡前往校園地圖');
 
   eventBus.on('trigger-dialog', (text: string) => {
     dialog.setText(text);
