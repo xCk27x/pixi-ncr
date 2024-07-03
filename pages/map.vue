@@ -1,15 +1,9 @@
 <template>
     <div id="screen" class="h-screen w-screen flex justify-center items-center">
         <div class="a"></div>
-        <!-- <div id="canvas-container" class="relative w-fit border-2"> -->
-        <div id="canvas-container" class="relative">
+        <div id="canvas-container" class="relative w-fit border-2">
             <!-- Original canvas element where Pixi.js will render -->
-            <div id="pixi-canvas" class="canvas-entity portrait">
-
-
-
-
-            </div>
+            <div id="pixi-canvas" class="canvas-entity portrait"></div>
             <!-- Dialog container within the canvas container -->
             <div v-if="showDialog" id="dialog-container"
                 class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10" @click="handleDialogClick">
@@ -28,19 +22,18 @@
                 <div class="control-btn right" @mousedown="startMove('right')" @mouseup="stopMove('right')"
                     @touchstart="startMove('right')" @touchend="stopMove('right')">►</div>
             </div>
-
         </div>
 
     </div>
-
-
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref, computed } from 'vue';
-import { Overworld, Controller, useDialog, eventBus } from "~/pixi-rpg/index";
-// import { useDialog } from "~/pixi-rpg/lib/dialog";
-// import { eventBus } from "~/pixi-rpg/lib/eventBus";
+import { Overworld, Controller } from "~/pixi-rpg/index";
+import { useRouter } from 'vue-router';
+import { useDialog } from "~/pixi-rpg/lib/dialog";
+import { eventBus } from "~/pixi-rpg/lib/eventBus";
+const nextRoute = ref<string | null>(null); // 用于存储下一步的路由
 
 // const dialog = useDialog('Welcome to the RPG game!');
 // const dialogText = computed(() => dialog.getText());
@@ -48,11 +41,48 @@ import { Overworld, Controller, useDialog, eventBus } from "~/pixi-rpg/index";
 const dialog = useDialog('');
 const dialogText = computed(() => dialog.getText());
 const showDialog = ref(false);
+// const isDialogActive = ref(false); // 用于指示对话框是否处于活动状态
+const router = useRouter(); // 获取 router 实例\
+let overworld: Overworld;
+
+// function handleDialogClick() {
+//   if (showDialog.value) {
+//     if (!dialog.isTextFullyDisplayed()) {
+//       dialog.completeTyping(); // 完成当前页的文字输出
+//     } else {
+//       if (!dialog.nextPage()) {
+//         showDialog.value = false; // 关闭对话框
+//         overworld.isDialogActive = false;
+//         // overworld.endDialog(); // 结束对话时重新允许移动
+//         console.log('isDialogActive:', overworld.isDialogActive);
+//         // isDialogActive.value = false; // 允许角色移动
+//         if (nextRoute.value) {
+//           router.push(nextRoute.value);
+//           console.log('nextRoute:', nextRoute.value);
+//         } else {
+//           console.log('noNextRoute:', nextRoute.value);
+//         }
+
+//       }
+//     }
+//   }
+// }
 
 function handleDialogClick() {
     if (showDialog.value) {
-        dialog.stopTyping(); // 停止打字效果
-        showDialog.value = false;
+        if (!dialog.isTextFullyDisplayed()) {
+            dialog.completeTyping(); // 完成当前页的文字输出
+        } else {
+            if (!dialog.nextPage()) {
+                showDialog.value = false; // 关闭对话框
+                overworld.isDialogActive = false;
+                console.log('isDialogActive:', overworld.isDialogActive);
+                if (nextRoute.value) {
+                    router.push(nextRoute.value);
+                    nextRoute.value = null; // 清空 nextRoute
+                }
+            }
+        }
     }
 }
 
@@ -86,33 +116,20 @@ function scaleCanvas() {
     container.style.transformOrigin = 'top left';
 }
 
+
+
 onMounted(async () => {
-    // Request fullscreen mode
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) { // Firefox
-        elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) { // Chrome, Safari 和 Opera
-        elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { // IE/Edge
-        elem.msRequestFullscreen();
-    }
-
-
-
-
-    const overworld = new Overworld('pixi-canvas');
+    overworld = new Overworld('pixi-canvas');
     // const overworld = new Overworld();
-    // const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
-    // const lowerMap = await overworld.loadLowerMap('/rpg/maps/map.png', 0, -1);
-    const lowerMap = await overworld.loadLowerMap('/rpg/maps/map2048.png', -50, -50);
-    // const lowerMap = await overworld.loadLowerMap('/rpg/maps/map4096.png', -50, -50);
+    const lowerMap = await overworld.loadLowerMap('/rpg/maps/map4096.png', -150, -150);
+
     const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 10, 3);
+    // const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 0, 0);
     const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
     const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
-
+    // const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
     const controller = new Controller(overworld);
+
 
 
     // overworld.addWall([1, -3], [1, 5]);
@@ -129,12 +146,29 @@ onMounted(async () => {
 
     console.log('Walls:', overworld.walls);
 
-    overworld.addTrigger(-5, 6, '這裡是校園地圖');
+    overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], '/map');
+    // overworld.ts
+    overworld.addTrigger(-9, 5, ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒']);
 
-    eventBus.on('trigger-dialog', (text: string) => {
-        dialog.setText(text);
-        showDialog.value = true;
+
+    // await overworld.addImage('/rpg/characters/hero/hero_back.png', 5, 5);
+    await overworld.addImage('/rpg/characters/hero/bottle_test3.png', -9, 5);
+
+    // await overworld.addImage('/rpg/characters/hero/hero_back.png', 6, 6);
+    // await overworld.addImage('/rpg/characters/hero/hero_back.png', 9, 9);
+
+    eventBus.on('trigger-dialog', (text: string | string[], route?: string) => {
+        if (!showDialog.value) {
+            dialog.setText(text);
+            showDialog.value = true;
+            overworld.isDialogActive = true;
+            if (route) {
+                nextRoute.value = route;
+            }
+        }
     });
+
+
 
     eventBus.on('leave-trigger-area', handleLeaveTriggerArea);
 
@@ -145,26 +179,19 @@ onMounted(async () => {
     //   dialog.setText(text);
     //   showDialog.value = true;
     // });
+
+    eventBus.on('navigate', (route: string) => {
+        nextRoute.value = route;
+    });
+
+
     scaleCanvas();
     window.addEventListener('resize', scaleCanvas);
-
 });
 
 onUnmounted(() => {
-    if (document.exitFullscreen) {
-        document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) { // Firefox
-        document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) { // Chrome, Safari 和 Opera
-        document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) { // IE/Edge
-        document.msExitFullscreen();
-    }
-
-    window.removeEventListener('resize', scaleCanvas);
-
     eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
-
+    window.removeEventListener('resize', scaleCanvas);
     // window.removeEventListener('click', handleScreenClick)
 });
 </script>
@@ -228,7 +255,7 @@ onUnmounted(() => {
     font-family: 'Arial', sans-serif;
     font-size: 10px;
     font-weight: 800;
-    z-index: 10;
+    z-index: 11;
     /* Ensure it's above the canvas elements */
 }
 

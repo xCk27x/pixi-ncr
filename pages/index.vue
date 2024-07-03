@@ -41,13 +41,47 @@ const nextRoute = ref<string | null>(null); // 用于存储下一步的路由
 const dialog = useDialog('');
 const dialogText = computed(() => dialog.getText());
 const showDialog = ref(false);
-const router = useRouter(); // 获取 router 实例
+// const isDialogActive = ref(false); // 用于指示对话框是否处于活动状态
+const router = useRouter(); // 获取 router 实例\
+let overworld: Overworld;
+
+// function handleDialogClick() {
+//   if (showDialog.value) {
+//     if (!dialog.isTextFullyDisplayed()) {
+//       dialog.completeTyping(); // 完成当前页的文字输出
+//     } else {
+//       if (!dialog.nextPage()) {
+//         showDialog.value = false; // 关闭对话框
+//         overworld.isDialogActive = false;
+//         // overworld.endDialog(); // 结束对话时重新允许移动
+//         console.log('isDialogActive:', overworld.isDialogActive);
+//         // isDialogActive.value = false; // 允许角色移动
+//         if (nextRoute.value) {
+//           router.push(nextRoute.value);
+//           console.log('nextRoute:', nextRoute.value);
+//         } else {
+//           console.log('noNextRoute:', nextRoute.value);
+//         }
+
+//       }
+//     }
+//   }
+// }
 
 function handleDialogClick() {
   if (showDialog.value) {
-    if (dialog.getText() === '' || !dialog.nextPage()) {
-      dialog.stopTyping(); // 停止打字效果
-      showDialog.value = false;
+    if (!dialog.isTextFullyDisplayed()) {
+      dialog.completeTyping(); // 完成当前页的文字输出
+    } else {
+      if (!dialog.nextPage()) {
+        showDialog.value = false; // 关闭对话框
+        overworld.isDialogActive = false;
+        console.log('isDialogActive:', overworld.isDialogActive);
+        if (nextRoute.value) {
+          router.push(nextRoute.value);
+          nextRoute.value = null; // 清空 nextRoute
+        }
+      }
     }
   }
 }
@@ -83,8 +117,9 @@ function scaleCanvas() {
 }
 
 
+
 onMounted(async () => {
-  const overworld = new Overworld('pixi-canvas');
+  overworld = new Overworld('pixi-canvas');
   // const overworld = new Overworld();
   const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
 
@@ -111,9 +146,9 @@ onMounted(async () => {
 
   console.log('Walls:', overworld.walls);
 
-  overworld.addTrigger(-5, 6, '這裡前往校園地圖', '/map');
+  overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], '/map');
   // overworld.ts
-  overworld.addTrigger(-9, 5, ['這看起來是個瓶子', '它看起來什麼都沒有 成功浪費了你幾秒']);
+  overworld.addTrigger(-9, 5, ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒']);
 
 
   // await overworld.addImage('/rpg/characters/hero/hero_back.png', 5, 5);
@@ -122,10 +157,17 @@ onMounted(async () => {
   // await overworld.addImage('/rpg/characters/hero/hero_back.png', 6, 6);
   // await overworld.addImage('/rpg/characters/hero/hero_back.png', 9, 9);
 
-  eventBus.on('trigger-dialog', (text: string | string[]) => {
-    dialog.setText(text);
-    showDialog.value = true;
+  eventBus.on('trigger-dialog', (text: string | string[], route?: string) => {
+    if (!showDialog.value) {
+      dialog.setText(text);
+      showDialog.value = true;
+      overworld.isDialogActive = true;
+      if (route) {
+        nextRoute.value = route;
+      }
+    }
   });
+
 
 
   eventBus.on('leave-trigger-area', handleLeaveTriggerArea);
@@ -157,30 +199,27 @@ onUnmounted(() => {
 <style lang="scss">
 #canvas-container {
   position: relative;
+  transform-origin: center !important;
+  //transform: scale(calc(100% / 1920px));
+  //overflow: hidden;
+  //transform-origin: top left;
   /* Ensure that the canvas-container can position children absolutely */
 }
 
+
+
 @media (min-width: 1000px) {
-  #canvas-container {
-    transform: scale(2.4);
-  }
-}
 
-@media (max-width: 1000px) {
-  #canvas-container {
-    transform: scale(1.4);
-  }
 
+  #controls {
+    display: none !important;
+  }
 
 }
 
-@media (max-width: 700px) {
-  #canvas-container {
-    transform: scale(1.2);
-  }
+@media (max-width: 1000px) {}
 
-
-}
+@media (max-width: 700px) {}
 
 @media (oritation: portrait) {
   .portrait {
@@ -192,20 +231,22 @@ onUnmounted(() => {
 
 
 #pixi-canvas {
-  width: 100%;
-  //height: 100%;
+
+  //width: 100%;
+
+  height: 100%;
   /* Ensures the Pixi.js canvas takes up the full container */
 }
 
 #dialog-container {
   width: 80%;
-  height: 30%;
+  height: 40%;
   border-radius: 8px;
   left: 10%;
   right: 10%;
   bottom: 5%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.9);
   color: white;
   //padding: 10px;
 
@@ -214,7 +255,7 @@ onUnmounted(() => {
   font-family: 'Arial', sans-serif;
   font-size: 10px;
   font-weight: 800;
-  z-index: 10;
+  z-index: 11;
   /* Ensure it's above the canvas elements */
 }
 
@@ -247,8 +288,8 @@ onUnmounted(() => {
 /* 移动按钮样式 */
 #controls {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
+  bottom: 10%;
+  left: 15%;
   transform: translateX(-50%);
   display: grid;
   grid-template-columns: 30px 30px 30px;
