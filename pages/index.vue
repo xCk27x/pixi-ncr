@@ -11,20 +11,19 @@
         <p class="text-left">離開以取消</p>
         <p class="text-right">點擊對話框繼續</p>
       </div>
-    </div>
 
-    <div id="controls" class="absolute bottom-4 left-4 flex flex-col space-y-2 md:hidden">
-      <button @mousedown="startMove('up')" @mouseup="stopMove('up')" @touchstart="startMove('up')"
-        @touchend="stopMove('up')" class="control-btn">↑</button>
-      <div class="flex space-x-2">
-        <button @mousedown="startMove('left')" @mouseup="stopMove('left')" @touchstart="startMove('left')"
-          @touchend="stopMove('left')" class="control-btn">←</button>
-        <button @mousedown="startMove('down')" @mouseup="stopMove('down')" @touchstart="startMove('down')"
-          @touchend="stopMove('down')" class="control-btn">↓</button>
-        <button @mousedown="startMove('right')" @mouseup="stopMove('right')" @touchstart="startMove('right')"
-          @touchend="stopMove('right')" class="control-btn">→</button>
+      <div id="controls" class="control-panel">
+        <div class="control-btn up" @mousedown="startMove('up')" @mouseup="stopMove('up')" @touchstart="startMove('up')"
+          @touchend="stopMove('up')">▲</div>
+        <div class="control-btn left" @mousedown="startMove('left')" @mouseup="stopMove('left')"
+          @touchstart="startMove('left')" @touchend="stopMove('left')">◄</div>
+        <div class="control-btn down" @mousedown="startMove('down')" @mouseup="stopMove('down')"
+          @touchstart="startMove('down')" @touchend="stopMove('down')">▼</div>
+        <div class="control-btn right" @mousedown="startMove('right')" @mouseup="stopMove('right')"
+          @touchstart="startMove('right')" @touchend="stopMove('right')">►</div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -46,13 +45,10 @@ const router = useRouter(); // 获取 router 实例
 
 function handleDialogClick() {
   if (showDialog.value) {
-    dialog.stopTyping(); // 停止打字效果
-    // showDialog.value = false;
-
-    if (nextRoute.value) {
-      router.push(nextRoute.value);
+    if (dialog.getText() === '' || !dialog.nextPage()) {
+      dialog.stopTyping(); // 停止打字效果
+      showDialog.value = false;
     }
-
   }
 }
 
@@ -70,6 +66,22 @@ function stopMove(direction: string) {
   eventBus.emit('move-stop', direction);
 }
 
+function scaleCanvas() {
+  const container = document.getElementById('canvas-container')!;
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+
+  const scaleX = (window.innerWidth - 50) / containerWidth;
+  const scaleY = (window.innerHeight - 50) / containerHeight;
+
+
+
+  const scale = Math.min(scaleX, scaleY);
+
+  container.style.transform = `scale(${scale})`;
+  container.style.transformOrigin = 'top left';
+}
+
 
 onMounted(async () => {
   const overworld = new Overworld('pixi-canvas');
@@ -77,6 +89,7 @@ onMounted(async () => {
   const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
 
   const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 10, 3);
+  // const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 0, 0);
   const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
   const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
   const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
@@ -99,11 +112,21 @@ onMounted(async () => {
   console.log('Walls:', overworld.walls);
 
   overworld.addTrigger(-5, 6, '這裡前往校園地圖', '/map');
+  // overworld.ts
+  overworld.addTrigger(-9, 5, ['這看起來是個瓶子', '它看起來什麼都沒有 成功浪費了你幾秒']);
 
-  eventBus.on('trigger-dialog', (text: string) => {
+
+  // await overworld.addImage('/rpg/characters/hero/hero_back.png', 5, 5);
+  await overworld.addImage('/rpg/characters/hero/bottle_test3.png', -9, 5);
+
+  // await overworld.addImage('/rpg/characters/hero/hero_back.png', 6, 6);
+  // await overworld.addImage('/rpg/characters/hero/hero_back.png', 9, 9);
+
+  eventBus.on('trigger-dialog', (text: string | string[]) => {
     dialog.setText(text);
     showDialog.value = true;
   });
+
 
   eventBus.on('leave-trigger-area', handleLeaveTriggerArea);
 
@@ -119,11 +142,14 @@ onMounted(async () => {
     nextRoute.value = route;
   });
 
+
+  scaleCanvas();
+  window.addEventListener('resize', scaleCanvas);
 });
 
 onUnmounted(() => {
   eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
-
+  window.removeEventListener('resize', scaleCanvas);
   // window.removeEventListener('click', handleScreenClick)
 });
 </script>
@@ -136,13 +162,13 @@ onUnmounted(() => {
 
 @media (min-width: 1000px) {
   #canvas-container {
-    transform: scale(2.5);
+    transform: scale(2.4);
   }
 }
 
 @media (max-width: 1000px) {
   #canvas-container {
-    transform: scale(1.5);
+    transform: scale(1.4);
   }
 
 
@@ -220,20 +246,20 @@ onUnmounted(() => {
 
 /* 移动按钮样式 */
 #controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: 10px;
+  left: 10px;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: 30px 30px 30px;
+  grid-template-rows: 30px 30px 30px;
+  gap: 5px;
   z-index: 10;
-
-
 }
 
 .control-btn {
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   background-color: #555;
   color: white;
   border: none;
@@ -241,9 +267,28 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 18px;
-  margin: 5px;
+  font-size: 12px;
   cursor: pointer;
+}
+
+.control-btn.up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.control-btn.left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.control-btn.down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.control-btn.right {
+  grid-column: 3;
+  grid-row: 2;
 }
 
 .control-btn:active {

@@ -1,9 +1,15 @@
 <template>
     <div id="screen" class="h-screen w-screen flex justify-center items-center">
         <div class="a"></div>
-        <div id="canvas-container" class="relative w-fit border-2">
+        <!-- <div id="canvas-container" class="relative w-fit border-2"> -->
+        <div id="canvas-container" class="relative">
             <!-- Original canvas element where Pixi.js will render -->
-            <div id="pixi-canvas" class="canvas-entity portrait"></div>
+            <div id="pixi-canvas" class="canvas-entity portrait">
+
+
+
+
+            </div>
             <!-- Dialog container within the canvas container -->
             <div v-if="showDialog" id="dialog-container"
                 class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10" @click="handleDialogClick">
@@ -11,28 +17,30 @@
                 <p class="text-left">離開以取消</p>
                 <p class="text-right">點擊對話框繼續</p>
             </div>
+
+            <div id="controls" class="control-panel">
+                <div class="control-btn up" @mousedown="startMove('up')" @mouseup="stopMove('up')"
+                    @touchstart="startMove('up')" @touchend="stopMove('up')">▲</div>
+                <div class="control-btn left" @mousedown="startMove('left')" @mouseup="stopMove('left')"
+                    @touchstart="startMove('left')" @touchend="stopMove('left')">◄</div>
+                <div class="control-btn down" @mousedown="startMove('down')" @mouseup="stopMove('down')"
+                    @touchstart="startMove('down')" @touchend="stopMove('down')">▼</div>
+                <div class="control-btn right" @mousedown="startMove('right')" @mouseup="stopMove('right')"
+                    @touchstart="startMove('right')" @touchend="stopMove('right')">►</div>
+            </div>
+
         </div>
 
-        <div id="controls" class="absolute bottom-4 left-4 flex flex-col space-y-2 md:hidden">
-            <button @mousedown="startMove('up')" @mouseup="stopMove('up')" @touchstart="startMove('up')"
-                @touchend="stopMove('up')" class="control-btn">↑</button>
-            <div class="flex space-x-2">
-                <button @mousedown="startMove('left')" @mouseup="stopMove('left')" @touchstart="startMove('left')"
-                    @touchend="stopMove('left')" class="control-btn">←</button>
-                <button @mousedown="startMove('down')" @mouseup="stopMove('down')" @touchstart="startMove('down')"
-                    @touchend="stopMove('down')" class="control-btn">↓</button>
-                <button @mousedown="startMove('right')" @mouseup="stopMove('right')" @touchstart="startMove('right')"
-                    @touchend="stopMove('right')" class="control-btn">→</button>
-            </div>
-        </div>
     </div>
+
+
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref, computed } from 'vue';
-import { Overworld, Controller } from "~/pixi-rpg/index";
-import { useDialog } from "~/pixi-rpg/lib/dialog";
-import eventBus from "~/pixi-rpg/lib/eventBus";
+import { Overworld, Controller, useDialog, eventBus } from "~/pixi-rpg/index";
+// import { useDialog } from "~/pixi-rpg/lib/dialog";
+// import { eventBus } from "~/pixi-rpg/lib/eventBus";
 
 // const dialog = useDialog('Welcome to the RPG game!');
 // const dialogText = computed(() => dialog.getText());
@@ -62,13 +70,44 @@ function stopMove(direction: string) {
     eventBus.emit('move-stop', direction);
 }
 
+function scaleCanvas() {
+    const container = document.getElementById('canvas-container')!;
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+
+    const scaleX = (window.innerWidth - 50) / containerWidth;
+    const scaleY = (window.innerHeight - 50) / containerHeight;
+
+
+
+    const scale = Math.min(scaleX, scaleY);
+
+    container.style.transform = `scale(${scale})`;
+    container.style.transformOrigin = 'top left';
+}
 
 onMounted(async () => {
+    // Request fullscreen mode
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { // Firefox
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { // Chrome, Safari 和 Opera
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { // IE/Edge
+        elem.msRequestFullscreen();
+    }
+
+
+
+
     const overworld = new Overworld('pixi-canvas');
     // const overworld = new Overworld();
     // const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
     // const lowerMap = await overworld.loadLowerMap('/rpg/maps/map.png', 0, -1);
-    const lowerMap = await overworld.loadLowerMap('/rpg/maps/mapp.png', -250, -250);
+    const lowerMap = await overworld.loadLowerMap('/rpg/maps/map2048.png', -50, -50);
+    // const lowerMap = await overworld.loadLowerMap('/rpg/maps/map4096.png', -50, -50);
     const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 10, 3);
     const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
     const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
@@ -106,10 +145,24 @@ onMounted(async () => {
     //   dialog.setText(text);
     //   showDialog.value = true;
     // });
+    scaleCanvas();
+    window.addEventListener('resize', scaleCanvas);
 
 });
 
 onUnmounted(() => {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) { // Firefox
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) { // Chrome, Safari 和 Opera
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { // IE/Edge
+        document.msExitFullscreen();
+    }
+
+    window.removeEventListener('resize', scaleCanvas);
+
     eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
 
     // window.removeEventListener('click', handleScreenClick)
@@ -119,30 +172,27 @@ onUnmounted(() => {
 <style lang="scss">
 #canvas-container {
     position: relative;
+    transform-origin: center !important;
+    //transform: scale(calc(100% / 1920px));
+    //overflow: hidden;
+    //transform-origin: top left;
     /* Ensure that the canvas-container can position children absolutely */
 }
 
+
+
 @media (min-width: 1000px) {
-    #canvas-container {
-        transform: scale(2.5);
-    }
-}
 
-@media (max-width: 1000px) {
-    #canvas-container {
-        transform: scale(1.5);
-    }
 
+    #controls {
+        display: none !important;
+    }
 
 }
 
-@media (max-width: 700px) {
-    #canvas-container {
-        transform: scale(1.2);
-    }
+@media (max-width: 1000px) {}
 
-
-}
+@media (max-width: 700px) {}
 
 @media (oritation: portrait) {
     .portrait {
@@ -154,20 +204,22 @@ onUnmounted(() => {
 
 
 #pixi-canvas {
-    width: 100%;
-    //height: 100%;
+
+    //width: 100%;
+
+    height: 100%;
     /* Ensures the Pixi.js canvas takes up the full container */
 }
 
 #dialog-container {
     width: 80%;
-    height: 30%;
+    height: 40%;
     border-radius: 8px;
     left: 10%;
     right: 10%;
     bottom: 5%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.9);
     color: white;
     //padding: 10px;
 
@@ -208,20 +260,20 @@ onUnmounted(() => {
 
 /* 移动按钮样式 */
 #controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     position: absolute;
-    bottom: 20px;
-    left: 20px;
+    bottom: 10%;
+    left: 15%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: 30px 30px 30px;
+    grid-template-rows: 30px 30px 30px;
+    gap: 5px;
     z-index: 10;
-
-
 }
 
 .control-btn {
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
     background-color: #555;
     color: white;
     border: none;
@@ -229,9 +281,28 @@ onUnmounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 18px;
-    margin: 5px;
+    font-size: 12px;
     cursor: pointer;
+}
+
+.control-btn.up {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.control-btn.left {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.control-btn.down {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.control-btn.right {
+    grid-column: 3;
+    grid-row: 2;
 }
 
 .control-btn:active {
