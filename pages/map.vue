@@ -129,6 +129,30 @@ onMounted(async () => {
     const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
     // const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
     const controller = new Controller(overworld);
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { // Firefox
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { // Chrome, Safari 和 Opera
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { // IE/Edge
+        elem.msRequestFullscreen();
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { // Chrome, Safari 和 Opera
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE/Edge
+                document.msExitFullscreen();
+            }
+        }
+    });
 
 
 
@@ -193,6 +217,15 @@ onUnmounted(() => {
     eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
     window.removeEventListener('resize', scaleCanvas);
     // window.removeEventListener('click', handleScreenClick)
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) { // Firefox
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) { // Chrome, Safari 和 Opera
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { // IE/Edge
+        document.msExitFullscreen();
+    }
 });
 </script>
 
