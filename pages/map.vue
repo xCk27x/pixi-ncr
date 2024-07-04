@@ -108,7 +108,7 @@ function navigateToRoute(route: string) {
 onMounted(async () => {
     overworld = new Overworld('pixi-canvas');
     // const overworld = new Overworld();
-    const lowerMap = await overworld.loadLowerMap('/rpg/maps/map4096.png', -150, -150);
+    const lowerMap = await overworld.loadLowerMap('/rpg/maps/map2048.png', -50, -50);
 
     const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 10, 3);
     // const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 0, 0);
@@ -119,9 +119,6 @@ onMounted(async () => {
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) { // Firefox
-        elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) { // Chrome, Safari 和 Opera
         elem.webkitRequestFullscreen();
     } else if (elem.msRequestFullscreen) { // IE/Edge
         elem.msRequestFullscreen();

@@ -99,36 +99,68 @@ function navigateToRoute(route: string) {
   }
 }
 
+function parseTiledWalls(wallData: any) {
+  wallData.forEach((wall: any) => {
+    const startX = wall.x / 16 - 8;
+    const startY = wall.y / 16 - 5;
+    const width = wall.width / 16;
+    const height = wall.height / 16;
+
+    for (let x = startX; x < startX + width; x++) {
+      for (let y = startY; y < startY + height; y++) {
+        overworld.addWall(x, y);
+      }
+    }
+  });
+}
+
+
 
 onMounted(async () => {
   overworld = new Overworld('pixi-canvas');
   // const overworld = new Overworld();
-  const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
+  // const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
+  const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, 0
+  );
+  const wallData = [
+    { "height": 192, "id": 1, "name": "", "rotation": 0, "type": "", "visible": true, "width": 0, "x": 192, "y": 0 },
+    { "height": 192, "id": 5, "name": "", "rotation": 0, "type": "", "visible": true, "width": 16, "x": 176, "y": 0 },
+    { "height": 32, "id": 9, "name": "", "rotation": 0, "type": "", "visible": true, "width": 80, "x": 96, "y": 160 },
+    { "height": 32, "id": 10, "name": "", "rotation": 0, "type": "", "visible": true, "width": 64, "x": 16, "y": 160 },
+    { "height": 16, "id": 18, "name": "", "rotation": 0, "type": "", "visible": true, "width": 16, "x": 80, "y": 176 },
+    { "height": 192, "id": 19, "name": "", "rotation": 0, "type": "", "visible": true, "width": 16, "x": 0, "y": 0 },
+    { "height": 16, "id": 20, "name": "", "rotation": 0, "type": "", "visible": true, "width": 160, "x": 16, "y": 0 }
+  ];
+  parseTiledWalls(wallData);
 
-  const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 10, 3);
+
+  const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 8, 5);
   // const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 0, 0);
-  const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 6, 6);
-  const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
-  const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
+  // const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 0, 0);
+  const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, -4, 2);
+  const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, -6, 3);
+  const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, 0);
   const controller = new Controller(overworld);
 
 
 
-  overworld.addWall([1, -3], [1, 5]);
-  overworld.addWall([-4, 6], [1, 6]);
-  overworld.addWall([-10, 6], [-6, 6]);
-  overworld.addWall([-10, -4], [-10, 6]);
-  overworld.addWall([-10, -4], [1, -4]);
-  overworld.addWall([-10, -1], [-5, -1]);
-  overworld.addWall([-4, 0], [-4, 0]);
-  overworld.addWall([-2, 0], [-2, 0]);
-  overworld.addWall([-2, 2], [-2, 3]);
-  overworld.addWall([-3, 2], [-3, 3]);
-  overworld.addWall([-2, -1], [0, -1]);
+  // overworld.addWall([1, -3], [1, 5]);
+  // overworld.addWall([-4, 6], [1, 6]);
+  // overworld.addWall([-10, 6], [-6, 6]);
+  // overworld.addWall([-10, -4], [-10, 6]);
+  // overworld.addWall([-10, -4], [1, -4]);
+  // overworld.addWall([-10, -1], [-5, -1]);
+  // overworld.addWall([-4, 0], [-4, 0]);
+  // overworld.addWall([-2, 0], [-2, 0]);
+  // overworld.addWall([-2, 2], [-2, 3]);
+  // overworld.addWall([-3, 2], [-3, 3]);
+  // overworld.addWall([-2, -1], [0, -1]);
 
   console.log('Walls:', overworld.walls);
 
-  overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
+  // overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
+  // overworld.addTrigger(-5, 6, ['這裡前往校園地圖'])
+  overworld.addTrigger(-3, 5, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
 
   await overworld.addImage('/rpg/characters/hero/bottle_test2.png', -9, 5);
   overworld.addTrigger(
