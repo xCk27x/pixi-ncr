@@ -155,7 +155,13 @@ onMounted(async () => {
 
   overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
   // overworld.ts
-  overworld.addTrigger(-9, 5, ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒']);
+  // overworld.addTrigger(-9, 5, ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒']);
+  overworld.addTrigger(
+    -9,
+    5,
+    ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒'],
+    () => overworld.removeTrigger(-9, 5)
+  );
 
 
   // await overworld.addImage('/rpg/characters/hero/hero_back.png', 5, 5);
