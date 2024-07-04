@@ -45,28 +45,7 @@ const showDialog = ref(false);
 const router = useRouter(); // 获取 router 实例\
 let overworld: Overworld;
 
-// function handleDialogClick() {
-//   if (showDialog.value) {
-//     if (!dialog.isTextFullyDisplayed()) {
-//       dialog.completeTyping(); // 完成当前页的文字输出
-//     } else {
-//       if (!dialog.nextPage()) {
-//         showDialog.value = false; // 关闭对话框
-//         overworld.isDialogActive = false;
-//         // overworld.endDialog(); // 结束对话时重新允许移动
-//         console.log('isDialogActive:', overworld.isDialogActive);
-//         // isDialogActive.value = false; // 允许角色移动
-//         if (nextRoute.value) {
-//           router.push(nextRoute.value);
-//           console.log('nextRoute:', nextRoute.value);
-//         } else {
-//           console.log('noNextRoute:', nextRoute.value);
-//         }
 
-//       }
-//     }
-//   }
-// }
 
 function handleDialogClick() {
     if (showDialog.value) {
@@ -164,30 +143,19 @@ onMounted(async () => {
 
 
 
-    // overworld.addWall([1, -3], [1, 5]);
-    // overworld.addWall([-4, 6], [1, 6]);
-    // overworld.addWall([-10, 6], [-6, 6]);
-    // overworld.addWall([-10, -4], [-10, 6]);
-    // overworld.addWall([-10, -4], [1, -4]);
-    // overworld.addWall([-10, -1], [-5, -1]);
-    // overworld.addWall([-4, 0], [-4, 0]);
-    // overworld.addWall([-2, 0], [-2, 0]);
-    // overworld.addWall([-2, 2], [-2, 3]);
-    // overworld.addWall([-3, 2], [-3, 3]);
-    // overworld.addWall([-2, -1], [0, -1]);
-
     console.log('Walls:', overworld.walls);
 
     overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
     // overworld.ts
-    overworld.addTrigger(-9, 5, ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒']);
+    await overworld.addImage('/rpg/characters/hero/bottle_test2.png', -9, 5);
+    overworld.addTrigger(
+        -9,
+        5,
+        ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒'],
+        () => overworld.removeTrigger(-9, 5),
+        () => overworld.removeImage(-9, 5)
+    );
 
-
-    // await overworld.addImage('/rpg/characters/hero/hero_back.png', 5, 5);
-    await overworld.addImage('/rpg/characters/hero/bottle_test3.png', -9, 5);
-
-    // await overworld.addImage('/rpg/characters/hero/hero_back.png', 6, 6);
-    // await overworld.addImage('/rpg/characters/hero/hero_back.png', 9, 9);
 
     eventBus.on('trigger-dialog', (text: string | string[], route?: string) => {
         if (!showDialog.value) {
