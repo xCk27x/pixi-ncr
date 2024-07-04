@@ -116,6 +116,14 @@ function scaleCanvas() {
     container.style.transformOrigin = 'top left';
 }
 
+function navigateToRoute(route: string) {
+    nextRoute.value = route;
+    if (!showDialog.value) {
+        router.push(nextRoute.value);
+        nextRoute.value = null;
+    }
+}
+
 
 
 onMounted(async () => {
@@ -170,7 +178,7 @@ onMounted(async () => {
 
     console.log('Walls:', overworld.walls);
 
-    overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], '/map');
+    overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
     // overworld.ts
     overworld.addTrigger(-9, 5, ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒']);
 
