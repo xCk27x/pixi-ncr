@@ -8,7 +8,7 @@
             <div v-if="showDialog" id="dialog-container"
                 class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10" @click="handleDialogClick">
                 <p id="dialog-text">{{ dialogText }}</p>
-                <p class="text-left">離開以取消</p>
+                <p class="text-left">點擊背景以取消</p>
                 <p class="text-right">點擊對話框繼續</p>
             </div>
 
@@ -44,7 +44,6 @@ const showDialog = ref(false);
 // const isDialogActive = ref(false); // 用于指示对话框是否处于活动状态
 const router = useRouter(); // 获取 router 实例\
 let overworld: Overworld;
-
 
 
 function handleDialogClick() {
@@ -116,6 +115,9 @@ onMounted(async () => {
     const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, 9, 9);
     // const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, -1);
     const controller = new Controller(overworld);
+    overworld.restorePositionOnLoad(); // Restore position on load
+
+
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();

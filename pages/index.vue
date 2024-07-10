@@ -152,6 +152,8 @@ onMounted(async () => {
   const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, 0);
   const controller = new Controller(overworld);
 
+  overworld.restorePositionOnLoad(); // Restore position on load
+
 
   hero3.anim.play();
 
