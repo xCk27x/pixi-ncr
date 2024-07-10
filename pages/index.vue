@@ -8,22 +8,21 @@
       <div v-if="showDialog" id="dialog-container" class="absolute bottom-0 w-full p-4 bg-gray-800 text-white z-10"
         @click="handleDialogClick">
         <p id="dialog-text">{{ dialogText }}</p>
-        <p class="text-left">離開以取消</p>
+        <p class="text-left">點擊背景以取消</p>
         <p class="text-right">點擊對話框繼續</p>
       </div>
 
       <div id="controls" class="control-panel">
-        <div class="control-btn up" @mousedown="startMove('up')" @mouseup="stopMove('up')" @touchstart="startMove('up')"
-          @touchend="stopMove('up')">▲</div>
+        <div class="control-btn up" @mousedown="startMove('up')" @mouseup="stopMove('up')"
+          @touchstart.prevent="startMove('up')" @touchend="stopMove('up')">▲</div>
         <div class="control-btn left" @mousedown="startMove('left')" @mouseup="stopMove('left')"
           @touchstart="startMove('left')" @touchend="stopMove('left')">◄</div>
         <div class="control-btn down" @mousedown="startMove('down')" @mouseup="stopMove('down')"
-          @touchstart="startMove('down')" @touchend="stopMove('down')">▼</div>
+          @touchstart.prevent="startMove('down')" @touchend="stopMove('down')">▼</div>
         <div class="control-btn right" @mousedown="startMove('right')" @mouseup="stopMove('right')"
-          @touchstart="startMove('right')" @touchend="stopMove('right')">►</div>
+          @touchstart.prevent="startMove('right')" @touchend="stopMove('right')">►</div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -58,6 +57,16 @@ function handleDialogClick() {
         }
       }
     }
+  }
+}
+
+function handleScreenClick(event: MouseEvent) {
+  const dialogContainer = document.getElementById('dialog-container');
+  if (dialogContainer && !dialogContainer.contains(event.target as Node)) {
+    showDialog.value = false;
+    overworld.isDialogActive = false;
+    // overworld.resetLastTriggerPosition();
+    console.log('Dialog closed by clicking outside');
   }
 }
 
@@ -139,10 +148,12 @@ onMounted(async () => {
   // const hero = await overworld.loadSprite('/rpg/characters/hero/hero.json', true, 0, 0);
   const hero2 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, -4, 2);
   const hero3 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, -6, 3);
+  const hero4 = await overworld.loadSprite('/rpg/characters/hero/hero.json', false, -2, 3);
   const upperMap = await overworld.loadUpperMap('/rpg/maps/DemoUpper.png', 0, 0);
   const controller = new Controller(overworld);
 
 
+  hero3.anim.play();
 
   // overworld.addWall([1, -3], [1, 5]);
   // overworld.addWall([-4, 6], [1, 6]);
@@ -160,16 +171,38 @@ onMounted(async () => {
 
   // overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
   // overworld.addTrigger(-5, 6, ['這裡前往校園地圖'])
-  overworld.addTrigger(-3, 5, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
+  overworld.addTrigger(-3, 5, ['這裡前往校園地圖'], () => navigateToRoute('/rpg/map'));
 
-  await overworld.addImage('/rpg/characters/hero/bottle_test2.png', -9, 5);
+  await overworld.addImage('/rpg/characters/hero/bottle_test2.png', -5, 4);
   overworld.addTrigger(
-    -9,
-    5,
+    -5,
+    4,
     ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒'],
-    () => overworld.removeTrigger(-9, 5),
-    () => overworld.removeImage(-9, 5)
+    () => overworld.removeTrigger(-5, 4),
+    () => overworld.removeImage(-5, 4)
   );
+
+  overworld.addTrigger(-4, 2, ['hello'], () => hero2.anim.play());
+
+  function moveHero4InSquare() {
+    const moveSequence = [
+      { direction: 'right', x: 1, y: 0 },
+      { direction: 'down', x: 0, y: 1 },
+      { direction: 'left', x: -1, y: 0 },
+      { direction: 'up', x: 0, y: -1 }
+    ];
+    let step = 0;
+
+    setInterval(() => {
+      const move = moveSequence[step];
+      overworld.moveCharacter(hero4, move.x, move.y, move.direction);
+
+      step = (step + 1) % moveSequence.length;
+    }, 300);
+  }
+
+  moveHero4InSquare();
+
 
 
 
@@ -197,7 +230,7 @@ onMounted(async () => {
     nextRoute.value = route;
   });
 
-
+  window.addEventListener('click', handleScreenClick);
   scaleCanvas();
   window.addEventListener('resize', scaleCanvas);
 });
@@ -205,6 +238,7 @@ onMounted(async () => {
 onUnmounted(() => {
   eventBus.off('leave-trigger-area', handleLeaveTriggerArea);
   window.removeEventListener('resize', scaleCanvas);
+  window.removeEventListener('click', handleScreenClick);
   // window.removeEventListener('click', handleScreenClick)
 });
 </script>
@@ -301,15 +335,15 @@ onUnmounted(() => {
   left: 15%;
   transform: translateX(-50%);
   display: grid;
-  grid-template-columns: 30px 30px 30px;
-  grid-template-rows: 30px 30px 30px;
+  grid-template-columns: 15px 15px 15px;
+  grid-template-rows: 15px 15px 15px;
   gap: 5px;
   z-index: 10;
 }
 
 .control-btn {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   background-color: #555;
   color: white;
   border: none;
@@ -317,8 +351,22 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 12px;
+  font-size: 8px;
   cursor: pointer;
+  user-select: none;
+  /* 禁用文本选择 */
+  -webkit-user-select: none;
+  /* 适用于Safari */
+  -ms-user-select: none;
+  /* 适用于IE */
+  -moz-user-select: none;
+  /* 适用于Firefox */
+  -webkit-touch-callout: none;
+  /* 禁用长按呼出上下文菜单 */
+  -webkit-user-drag: none;
+  /* 禁用拖拽 */
+  touch-action: manipulation;
+  /* 禁用所有默认触摸行为 */
 }
 
 .control-btn.up {

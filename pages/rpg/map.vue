@@ -14,13 +14,13 @@
 
             <div id="controls" class="control-panel">
                 <div class="control-btn up" @mousedown="startMove('up')" @mouseup="stopMove('up')"
-                    @touchstart="startMove('up')" @touchend="stopMove('up')">▲</div>
+                    @touchstart.prevent="startMove('up')" @touchend="stopMove('up')">▲</div>
                 <div class="control-btn left" @mousedown="startMove('left')" @mouseup="stopMove('left')"
-                    @touchstart="startMove('left')" @touchend="stopMove('left')">◄</div>
+                    @touchstart.prevent="startMove('left')" @touchend="stopMove('left')">◄</div>
                 <div class="control-btn down" @mousedown="startMove('down')" @mouseup="stopMove('down')"
-                    @touchstart="startMove('down')" @touchend="stopMove('down')">▼</div>
+                    @touchstart.prevent="startMove('down')" @touchend="stopMove('down')">▼</div>
                 <div class="control-btn right" @mousedown="startMove('right')" @mouseup="stopMove('right')"
-                    @touchstart="startMove('right')" @touchend="stopMove('right')">►</div>
+                    @touchstart.prevent="startMove('right')" @touchend="stopMove('right')">►</div>
             </div>
         </div>
 
@@ -298,15 +298,15 @@ onUnmounted(() => {
     left: 15%;
     transform: translateX(-50%);
     display: grid;
-    grid-template-columns: 30px 30px 30px;
-    grid-template-rows: 30px 30px 30px;
+    grid-template-columns: 15px 15px 15px;
+    grid-template-rows: 15px 15px 15px;
     gap: 5px;
     z-index: 10;
 }
 
 .control-btn {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     background-color: #555;
     color: white;
     border: none;
@@ -314,8 +314,22 @@ onUnmounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 12px;
+    font-size: 8px;
     cursor: pointer;
+    user-select: none;
+    /* 禁用文本选择 */
+    -webkit-user-select: none;
+    /* 适用于Safari */
+    -ms-user-select: none;
+    /* 适用于IE */
+    -moz-user-select: none;
+    /* 适用于Firefox */
+    -webkit-touch-callout: none;
+    /* 禁用长按呼出上下文菜单 */
+    -webkit-user-drag: none;
+    /* 禁用拖拽 */
+    touch-action: manipulation;
+    /* 禁用所有默认触摸行为 */
 }
 
 .control-btn.up {
