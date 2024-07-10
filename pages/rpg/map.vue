@@ -105,7 +105,7 @@ function navigateToRoute(route: string) {
 
 
 onMounted(async () => {
-    overworld = new Overworld('pixi-canvas');
+    overworld = new Overworld('pixi-canvas', 'map');
     // const overworld = new Overworld();
     const lowerMap = await overworld.loadLowerMap('/rpg/maps/map2048.png', -50, -50);
 

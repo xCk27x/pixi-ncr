@@ -126,7 +126,7 @@ function parseTiledWalls(wallData: any) {
 
 
 onMounted(async () => {
-  overworld = new Overworld('pixi-canvas');
+  overworld = new Overworld('pixi-canvas', 'index');
   // const overworld = new Overworld();
   // const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, -1);
   const lowerMap = await overworld.loadLowerMap('/rpg/maps/DemoLower.png', 0, 0
