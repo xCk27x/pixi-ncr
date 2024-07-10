@@ -156,8 +156,8 @@ onMounted(async () => {
   function teleportTo(x: number, y: number) {
     overworld.teleportCharacter(x, y);
   }
-  overworld.addTrigger(-1, -1, ['傳送到新的位置'], () => teleportTo(4, -1));
-  overworld.addTrigger(-3, 7, ['傳送到新的位置'], () => teleportTo(-1, 0));
+  // overworld.addTrigger(-1, -1, 'tp', ['傳送到新的位置'], () => teleportTo(4, -1));
+  // overworld.addTrigger(-3, 7, 'tp', ['傳送到新的位置'], () => teleportTo(-1, 0));
   hero3.anim.play();
 
   // overworld.addWall([1, -3], [1, 5]);
@@ -174,20 +174,30 @@ onMounted(async () => {
 
   console.log('Walls:', overworld.walls);
 
-  // overworld.addTrigger(-5, 6, ['這裡前往校園地圖'], () => navigateToRoute('/map'));
-  // overworld.addTrigger(-5, 6, ['這裡前往校園地圖'])
-  overworld.addTrigger(-3, 5, ['這裡前往校園地圖'], () => navigateToRoute('/rpg/map'));
+  overworld.addTrigger(-5, 6, 'cd', ['這裡前往校園地圖'], () => navigateToRoute('/map'));
+
+  overworld.addTrigger(-3, 5, 'tp', ['這裡前往校園地圖'], () => navigateToRoute('/rpg/map'));
 
   await overworld.addImage('/rpg/characters/hero/bottle_test2.png', -5, 4);
   overworld.addTrigger(
     -5,
-    4,
+    4, 'bottle',
     ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒'],
-    () => overworld.removeTrigger(-5, 4),
+    () => overworld.removeTriggersByType('bottle'),
     () => overworld.removeImage(-5, 4)
   );
 
-  overworld.addTrigger(-4, 2, ['hello'], () => hero2.anim.play());
+  overworld.addTrigger(
+    -5,
+    3, 'bottle',
+    ['這看起來是個瓶子', 'teststestesteststetstest', '它看起來什麼都沒有 成功浪費了你幾秒'],
+    () => overworld.removeTriggersByType('bottle'),
+    () => overworld.removeImage(-5, 4)
+  );
+
+
+
+  overworld.addTrigger(-4, 2, 'npc1', ['hello'], () => hero2.anim.play());
 
   function moveHero4InSquare() {
     const moveSequence = [
