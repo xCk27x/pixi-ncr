@@ -153,8 +153,11 @@ onMounted(async () => {
   const controller = new Controller(overworld);
 
   overworld.restorePositionOnLoad(); // Restore position on load
-
-
+  function teleportTo(x: number, y: number) {
+    overworld.teleportCharacter(x, y);
+  }
+  overworld.addTrigger(-1, -1, ['傳送到新的位置'], () => teleportTo(4, -1));
+  overworld.addTrigger(-3, 7, ['傳送到新的位置'], () => teleportTo(-1, 0));
   hero3.anim.play();
 
   // overworld.addWall([1, -3], [1, 5]);

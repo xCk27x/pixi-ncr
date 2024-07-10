@@ -204,6 +204,7 @@ onUnmounted(() => {
 });
 </script>
 
+
 <style lang="scss">
 #canvas-container {
     position: relative;
