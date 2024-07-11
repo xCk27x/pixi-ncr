@@ -23,7 +23,6 @@
                     @touchstart.prevent="startMove('right')" @touchend="stopMove('right')">►</div>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -33,6 +32,10 @@ import { Overworld, Controller } from "~/pixi-rpg/index";
 import { useRouter } from 'vue-router';
 import { useDialog } from "~/pixi-rpg/lib/dialog";
 import { eventBus } from "~/pixi-rpg/lib/eventBus";
+
+// import { useRouter } from 'vue-router';
+// import { onMounted, ref, computed } from "vue"
+// import { Overworld, Controller, useDialog, eventBus } from "@hollowha/pixi-rpg"
 const nextRoute = ref<string | null>(null); // 用于存储下一步的路由
 
 // const dialog = useDialog('Welcome to the RPG game!');
